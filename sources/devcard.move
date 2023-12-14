@@ -65,6 +65,22 @@ module devhub::devcard {
 
    }
 
+   // This is an event
+    // This event will be emitted in the update_devCard
+   struct DevCardUpdated has copyi drop{
+            
+            owner = address,
+            name= String;
+            title = String;
+            exp= u8;
+            technologies= String;
+            ccontact= String;
+
+        }
+
+
+   
+
     // We are initating our contract.
     // DevHub created a shared object so that users can modify or alter their cards
    
@@ -161,14 +177,54 @@ module devhub::devcard {
 
       // With this function the user can change his/her card's portfolio
     
-    public entry fun update_portfolio(devhub: &mut DevHub, new_portfolio: vector<u8>, id: u64, ctx: &mut TxContext){
+     public entry fun update_portfolio(devhub: &mut DevHub, new_portfolio: vector<u8>, id: u64, ctx: &mut TxContext){
 
         let user_card = object_table::borrow_mut(&mut devhub.cards, id);
         assert!(tx_context::sender(ctx) == user_card.owner, NOT_THE_OWNER);
         user_card.portfolio = string::utf8(new_portfolio);
 
 
-    }
+        }
+    
+
+      // With this function the user can change update devCard
+       public entry fun update_devCard(devhub: &mut DevHub, 
+       new_name: vector<u8>, 
+       new_title:  vector<u8>,  
+       new_exp: u8,
+       new_technologies: vector<u8>,
+       new_contact:  vector<u8>,
+       id: u64, 
+       ctx: &mut TxContext)
+       {
+
+        let card = object_table::borrow_mut(&mut devhub.cards, id);
+        assert!(tx_context::sender(ctx) == user_card.owner, NOT_THE_OWNER);
+
+        card.name= string::utf8(new_name);
+        card.title= string::utf8(new_title);
+        card.exp= new_exp;
+        card.technologies= string::utf8(new_technologies);
+        card.contact= string::utf8(new_contact);
+
+
+           event::emit(DevCardUpdated{
+            
+            owner = card.owner,
+          
+            name= string::utf8(new_name);
+            title = string::utf8(new_title);
+            exp= new_exp;
+            technologies= string::utf8(new_technologies);
+            ccontact= string::utf8(new_contact);
+
+        });
+
+
+        }
+
+
+
 
     // With this function user can deactivate his/her account by setting open_to_work field of his/her card to false
         
