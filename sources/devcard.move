@@ -25,7 +25,7 @@ module devhub::devcard {
         owner:address,
         title:String,
         img_url: Url,
-        decription: Option<String>,
+        description: Option<String>,
         years_of_exp:u8,
         technologies:String,
         portfolio:String,
@@ -67,14 +67,14 @@ module devhub::devcard {
 
    // This is an event
     // This event will be emitted in the update_devCard
-   struct DevCardUpdated has copyi drop{
+   struct DevCardUpdated has copy, drop{
             
-            owner = address,
-            name= String;
-            title = String;
-            exp= u8;
-            technologies= String;
-            ccontact= String;
+            owner : address,
+            name:String,
+            title : String,
+            exp: u8,
+            technologies:String,
+            ccontact:String,
 
         }
 
@@ -90,7 +90,7 @@ module devhub::devcard {
             id: object::new(ctx),
             owner: tx_context::sender(ctx),
             counter:0,
-            card: object_table::new(ctx),
+            cards: object_table::new(ctx),
         }
     );
    }
@@ -161,10 +161,11 @@ module devhub::devcard {
 
         let old_value = option::swap_or_fill(&mut user_card.description, string::utf8(new_description));
 
-        event::emit(DescriptonUpdated{
-            name= user_card.name,
-            owner = user_card.owner,
-            new_description = string::utf8(new_description)
+        event::emit(
+            DescriptonUpdated{
+            name: user_card.name,
+            owner : user_card.owner,
+            new_description : string::utf8(new_description)
 
         });
 
@@ -199,24 +200,25 @@ module devhub::devcard {
        {
 
         let card = object_table::borrow_mut(&mut devhub.cards, id);
-        assert!(tx_context::sender(ctx) == user_card.owner, NOT_THE_OWNER);
+        assert!(tx_context::sender(ctx) == card.owner, NOT_THE_OWNER);
 
         card.name= string::utf8(new_name);
         card.title= string::utf8(new_title);
-        card.exp= new_exp;
+        card.years_of_exp= new_exp;
         card.technologies= string::utf8(new_technologies);
         card.contact= string::utf8(new_contact);
 
 
-           event::emit(DevCardUpdated{
+           event::emit(
+            DevCardUpdated{
             
-            owner = card.owner,
+            owner : card.owner,
           
-            name= string::utf8(new_name);
-            title = string::utf8(new_title);
-            exp= new_exp;
-            technologies= string::utf8(new_technologies);
-            ccontact= string::utf8(new_contact);
+            name: string::utf8(new_name),
+            title : string::utf8(new_title),
+            exp: new_exp,
+            technologies: string::utf8(new_technologies),
+            ccontact: string::utf8(new_contact),
 
         });
 
